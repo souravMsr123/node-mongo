@@ -6,7 +6,6 @@ var mongoClient = mongodb.MongoClient;
 var ObjectId = mongodb.ObjectID;
 var bcrypt = require("bcrypt")
 var expressSession = require("express-session")
-var formidable = require("formidable")
 var fileSystem = require("fs")
 var jwt = require("jsonwebtoken")
 const excelToJson = require('convert-excel-to-json');
@@ -77,7 +76,7 @@ async function addUserCountToDB(){
         return (this._id.getTimestamp() >= today)
     } } );
 
-    db.collection("userLogs").insertOne({
+    database.collection("userLogs").insertOne({
         "count":result.length,
         date:new Date()
     }, (err, res) => {
@@ -116,7 +115,7 @@ function importExcelData2MongoDB(filePath){
    
 
     // Insert Json-Object to MongoDB
-    db.collection("users").insertMany(excelData.Users, (err, res) => {
+    database.collection("users").insertMany(excelData.Users, (err, res) => {
         if (err) throw err;
         console.log("Number of documents inserted: " + res.insertedCount);
         
@@ -139,7 +138,7 @@ http.listen(3000,function(){
         useUnifiedTopology: true
       }, function(err,client){
         database = client.db("node-mongo");
-        db.collection("users").createIndex( { name: "text", description: "text" } )
+        database.collection("users").createIndex( { name: "text", description: "text" } )
 
        
 
@@ -227,7 +226,7 @@ http.listen(3000,function(){
         });
 
         app.get("/search", isAuthenticated, async(req,res)=>{
-           let result = await  db.stores.find( { $text: { $search: req.query.text} } )
+           let result = await  database.collection("users").find( { $text: { $search: req.query.text} } )
            res.status(200).json({
             "message":"Your serach result..!!",
             data:result,
